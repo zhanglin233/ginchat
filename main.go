@@ -1,11 +1,15 @@
 package main
 
 import (
-	"chatgpt/router"
+	"chatgpt/models"
+	"chatgpt/utils"
 )
 
 func main() {
-	r := router.Router()
+	utils.InitConfig()
+	utils.InitMysql()
+	models.GetUserList()
+	// r := router.Router()
 
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	// r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

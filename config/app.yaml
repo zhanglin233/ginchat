@@ -1,0 +1,6 @@
+mysql:
+  name: root 
+  password: zl29010129
+  port: 3306
+  database: ginchat
+  ip: 127.0.0.1
