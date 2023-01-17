@@ -2,10 +2,14 @@ package utils
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"time"
 
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
@@ -28,6 +32,16 @@ func InitMysql() {
 	database := viper.GetString("mysql.database")
 	dsn := name + ":" + password + "@tcp(" + ip + ":" + port + ")/" + database + "?charset=utf8&parseTime=True&loc=Local"
 	fmt.Println(dsn)
-	DB, _ = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+	// 自定义日志文件
+	newLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags),
+		logger.Config{
+			SlowThreshold: time.Second, //慢sql阈值
+			LogLevel:      logger.Info, // 日志级别
+			Colorful:      true,        // 彩色
+		},
+	)
+	DB, _ = gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: newLogger})
 
 }
