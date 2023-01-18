@@ -25,6 +25,14 @@ paths:
         in: query
         name: rePassword
         type: string
+      - description: 电话号码
+        in: query
+        name: phone
+        type: string
+      - description: 邮箱
+        in: query
+        name: email
+        type: string
       responses:
         "200":
           description: message"}

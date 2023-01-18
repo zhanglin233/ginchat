@@ -55,6 +55,18 @@ const docTemplate = `{
                         "description": "确认密码",
                         "name": "rePassword",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "电话号码",
+                        "name": "phone",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "邮箱",
+                        "name": "email",
+                        "in": "query"
                     }
                 ],
                 "responses": {

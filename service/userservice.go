@@ -28,6 +28,8 @@ func GetUserList(c *gin.Context) {
 // @param name query string false "用户名"
 // @param password query string false "密码"
 // @param rePassword query string false "确认密码"
+// @param phone query string false "电话号码"
+// @param email query string false "邮箱"
 // @Success 200 {string} json{code,"message"}
 // @Router /user/createUser [get]
 func CreateUser(c *gin.Context) {
@@ -35,17 +37,34 @@ func CreateUser(c *gin.Context) {
 	user.Name = c.Query("name")
 	user.Password = c.Query("password")
 	rePassword := c.Query("rePassword")
-	if user.Password != rePassword {
+	user.Phone = c.Query("phone")
+	user.Email = c.Query("email")
+	isNameExist := models.FindUserByName(user.Name)
+	isPhoneExist := models.FindUserByPhone(user.Phone)
+	isEmailExist := models.FindUserByEmail(user.Email)
+	if isNameExist {
 		c.JSON(-1, gin.H{
+			"message": "用户名已存在",
+		})
+	} else if isPhoneExist {
+		c.JSON(-2, gin.H{
+			"message": "电话号码已注册",
+		})
+	} else if isEmailExist {
+		c.JSON(-3, gin.H{
+			"message": "邮箱已注册",
+		})
+	} else if user.Password != rePassword {
+		c.JSON(-4, gin.H{
 			"message": "两次密码不一致",
 		})
-		return
+	} else {
+		models.CreateUser(user)
+		c.JSON(200, gin.H{
+			"message": "添加用户成功",
+		})
 	}
 
-	models.CreateUser(user)
-	c.JSON(200, gin.H{
-		"message": "添加用户成功",
-	})
 }
 
 // DeleteUser
