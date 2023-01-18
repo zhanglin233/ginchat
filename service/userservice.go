@@ -2,8 +2,10 @@ package service
 
 import (
 	"chatgpt/models"
+	"fmt"
 	"strconv"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
 )
 
@@ -69,6 +71,8 @@ func DeleteUser(c *gin.Context) {
 // @param id formData string false "用户id"
 // @param name formData string false "用户名"
 // @param password formData string false "密码"
+// @param phone formData string false "电话号码"
+// @param email formData string false "邮箱"
 // @Success 200 {string} json{code,"message"}
 // @Router /user/updateUser [post]
 func UpdateUser(c *gin.Context) {
@@ -77,9 +81,21 @@ func UpdateUser(c *gin.Context) {
 	user.ID = uint(id)
 	user.Name = c.PostForm("name")
 	user.Password = c.PostForm("password")
+	user.Phone = c.PostForm("phone")
+	user.Email = c.PostForm("email")
+	fmt.Println("update: ", user)
 
-	models.UpdateUser(user)
-	c.JSON(200, gin.H{
-		"message": "修改用户成功",
-	})
+	_, err := govalidator.ValidateStruct(user)
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(200, gin.H{
+			"message": "修改参数不匹配",
+		})
+	} else {
+		models.UpdateUser(user)
+		c.JSON(200, gin.H{
+			"message": "修改用户成功",
+		})
+	}
+
 }
