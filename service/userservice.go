@@ -2,7 +2,9 @@ package service
 
 import (
 	"chatgpt/models"
+	"chatgpt/utils"
 	"fmt"
+	"math/rand"
 	"strconv"
 
 	"github.com/asaskevich/govalidator"
@@ -59,6 +61,8 @@ func CreateUser(c *gin.Context) {
 			"message": "两次密码不一致",
 		})
 	} else {
+		user.Salt = fmt.Sprintf("%06d", rand.Int31())
+		user.Password = utils.MakePassword(user.Password, user.Salt)
 		models.CreateUser(user)
 		c.JSON(200, gin.H{
 			"message": "添加用户成功",
