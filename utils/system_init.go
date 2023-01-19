@@ -6,14 +6,18 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-redis/redis"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-var DB *gorm.DB
-var Status map[string]string
+var (
+	DB     *gorm.DB
+	Status map[string]string
+	Red    *redis.Client
+)
 
 func InitConfig() {
 	Status = map[string]string{}
@@ -48,4 +52,27 @@ func InitMysql() {
 	)
 	DB, _ = gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: newLogger})
 
+}
+
+// 初始化redis
+func InitRedis() {
+	ip := viper.GetString("redis.ip")
+	port := viper.GetString("redis.port")
+	password := viper.GetString("redis.password")
+	poolSize := viper.GetInt("redis.poolSize")
+	db := viper.GetInt("mysql.db")
+	minIdleConn := viper.GetInt("redis.minIdleConn")
+	Red = redis.NewClient(&redis.Options{
+		Addr:         ip + ":" + port,
+		Password:     password,
+		PoolSize:     poolSize,
+		DB:           db,
+		MinIdleConns: minIdleConn,
+	})
+	pong, err := Red.Ping().Result()
+	if err != nil {
+		fmt.Println("redis init ... ", err)
+	} else {
+		fmt.Println("redis init ... ", pong)
+	}
 }
