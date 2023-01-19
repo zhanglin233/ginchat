@@ -19,9 +19,7 @@ import (
 func GetUserList(c *gin.Context) {
 	data := make([]*models.UserBasic, 10)
 	data = models.GetUserList()
-	c.JSON(200, gin.H{
-		"message": data,
-	})
+	c.JSON(200, utils.ReturnJson("200", "获取用户列表成功", data))
 }
 
 // GetUserList
@@ -32,28 +30,22 @@ func GetUserList(c *gin.Context) {
 // @param password query string false "密码"
 // @Router /user/findUserByNameAndPwd [get]
 func FindUserByNameAndPwd(c *gin.Context) {
-	var code int
 	name := c.Query("name")
 	password := c.Query("password")
 	user := models.FindUserByName(name)
 	if user.Name == "" {
-		code, _ = strconv.Atoi(utils.Status["userNameWrong"])
-		c.JSON(code, gin.H{
-			"message": "用户不存在",
-		})
+		code := utils.Status["usernamewrong"]
+		c.JSON(200, utils.ReturnJson(code, "用户不存在", ""))
 		return
 	}
 	if !utils.ValidPassword(password, user.Salt, user.Password) {
-		code, _ = strconv.Atoi(utils.Status["passwordWrong"])
-		c.JSON(code, gin.H{
-			"message": "密码错误",
-		})
+		code := utils.Status["passwordwrong"]
+		c.JSON(200, utils.ReturnJson(code, "密码错误", ""))
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"message": user,
-	})
+	data := models.FindUserByNameAndPwd(name, password)
+	c.JSON(200, utils.ReturnJson("200", "登陆成功", data))
 }
 
 // CreateUser
@@ -77,49 +69,35 @@ func CreateUser(c *gin.Context) {
 	isPhoneExist := models.FindUserByPhone(user.Phone).Phone == ""
 	isEmailExist := models.FindUserByEmail(user.Email).Email == ""
 	if !isNameExist {
-		code, _ := strconv.Atoi(utils.Status["namehasexisted"])
+		code := utils.Status["namehasexisted"]
 		// fmt.Println("code: ", code)
-		c.JSON(code, gin.H{
-			"message": "用户名已存在",
-		})
+		c.JSON(200, utils.ReturnJson(code, "用户名已存在", ""))
 		return
 	} else if !isPhoneExist {
-		code, err := strconv.Atoi(utils.Status["phonehasexisted"])
-		if err != nil {
-			fmt.Println(err)
-		}
+		code := utils.Status["phonehasexisted"]
 		// fmt.Println("code: ", code)
-		c.JSON(code, gin.H{
-			"message": "电话号码已注册",
-		})
+		c.JSON(200, utils.ReturnJson(code, "电话号码已注册", ""))
 		return
 	} else if !isEmailExist {
-		code, _ := strconv.Atoi(utils.Status["emailhasexisted"])
-		c.JSON(code, gin.H{
-			"message": "邮箱已注册",
-		})
+		code := utils.Status["emailhasexisted"]
+		c.JSON(200, utils.ReturnJson(code, "邮箱已注册", ""))
 		return
 	} else if user.Password != rePassword {
-		code, _ := strconv.Atoi(utils.Status["rePasswordWrong"])
-		c.JSON(code, gin.H{
-			"message": "两次密码不一致",
-		})
+		code := utils.Status["repasswordwrong"]
+		c.JSON(200, utils.ReturnJson(code, "两次密码不一致", ""))
 		return
 	} else {
 		_, err := govalidator.ValidateStruct(user)
 		if err != nil {
 			fmt.Println(err)
-			c.JSON(200, gin.H{
-				"message": "修改参数不匹配",
-			})
+			code := utils.Status["paramwrong"]
+			c.JSON(200, utils.ReturnJson(code, "参数不匹配", ""))
 			return
 		}
 		user.Salt = fmt.Sprintf("%06d", rand.Int31())
 		user.Password = utils.MakePassword(user.Password, user.Salt)
 		models.CreateUser(user)
-		c.JSON(200, gin.H{
-			"message": "添加用户成功",
-		})
+		c.JSON(200, utils.ReturnJson("200", "添加用户成功", ""))
 	}
 
 }
@@ -136,9 +114,7 @@ func DeleteUser(c *gin.Context) {
 	user.ID = uint(id)
 
 	models.DeleteUser(user)
-	c.JSON(200, gin.H{
-		"message": "删除用户成功",
-	})
+	c.JSON(200, utils.ReturnJson("200", "删除用户成功", ""))
 }
 
 // UpdateUser
@@ -164,14 +140,11 @@ func UpdateUser(c *gin.Context) {
 	_, err := govalidator.ValidateStruct(user)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(200, gin.H{
-			"message": "修改参数不匹配",
-		})
+		code := utils.Status["paramwrong"]
+		c.JSON(200, utils.ReturnJson(code, "参数不匹配", ""))
 	} else {
 		models.UpdateUser(user)
-		c.JSON(200, gin.H{
-			"message": "修改用户成功",
-		})
+		c.JSON(200, utils.ReturnJson("200", "修改用户成功", ""))
 	}
 
 }
