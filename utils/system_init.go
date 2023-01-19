@@ -1,12 +1,13 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -69,10 +70,25 @@ func InitRedis() {
 		DB:           db,
 		MinIdleConns: minIdleConn,
 	})
-	pong, err := Red.Ping().Result()
-	if err != nil {
-		fmt.Println("redis init ... ", err)
-	} else {
-		fmt.Println("redis init ... ", pong)
-	}
+	var ctx = context.Background()
+	statusCmd := Red.Ping(ctx)
+	fmt.Println("redis init ... ", statusCmd)
+}
+
+const (
+	PublishKey = "websocket"
+)
+
+// Publish 发布消息到Redis
+func Publish(ctx context.Context, channel string, msg string) error {
+	err := Red.Publish(ctx, channel, msg).Err()
+	return err
+}
+
+// subscribe 订阅消息到Redis
+func Subscribe(ctx context.Context, channel string) (string, error) {
+	sub := Red.Subscribe(ctx, channel)
+	fmt.Println("Subscribe .... ", sub)
+	msg, err := sub.ReceiveMessage(ctx)
+	return msg.Payload, err
 }
