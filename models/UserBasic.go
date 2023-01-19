@@ -14,7 +14,7 @@ type UserBasic struct {
 	Password      string
 	Salt          string
 	Phone         string `valid:"matches(^1[3-9]{1}\\d{9}$)"`
-	Email         string `valid: "email"`
+	Email         string `valid:"email"` //valid:后面不能有空格
 	Identity      string
 	ClientIp      string
 	ClientPort    string
@@ -39,22 +39,22 @@ func GetUserList() []*UserBasic {
 	return data
 }
 
-func FindUserByName(name string) bool {
+func FindUserByName(name string) UserBasic {
 	user := UserBasic{}
 	utils.DB.Where("name = ?", name).First(&user)
-	return user.Name != ""
+	return user
 }
 
-func FindUserByPhone(phone string) bool {
+func FindUserByPhone(phone string) UserBasic {
 	user := UserBasic{}
 	utils.DB.Where("phone = ?", phone).First(&user)
-	return user.Phone != ""
+	return user
 }
 
-func FindUserByEmail(email string) bool {
+func FindUserByEmail(email string) UserBasic {
 	user := UserBasic{}
 	utils.DB.Where("email = ?", email).First(&user)
-	return user.Email != ""
+	return user
 }
 
 func CreateUser(user UserBasic) *gorm.DB {

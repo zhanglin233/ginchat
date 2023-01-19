@@ -13,14 +13,18 @@ import (
 )
 
 var DB *gorm.DB
+var Status map[string]string
 
 func InitConfig() {
+	Status = map[string]string{}
 	viper.SetConfigName("app") // name of config file (without extension)
 	viper.AddConfigPath("config")
 	err := viper.ReadInConfig()
+	Status = viper.GetStringMapString("status")
 	if err != nil {
 		fmt.Println(err)
 	}
+	fmt.Println("config status", Status["phonehasexisted"])
 	fmt.Println("config mysql", viper.Get("mysql"))
 }
 

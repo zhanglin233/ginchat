@@ -24,6 +24,38 @@ func GetUserList(c *gin.Context) {
 	})
 }
 
+// GetUserList
+// @Summary 通过用户名和密码判断用户
+// @Tags 用户模块
+// @Success 200 {string} json{code,"message"}
+// @param name query string false "名字"
+// @param password query string false "密码"
+// @Router /user/findUserByNameAndPwd [get]
+func FindUserByNameAndPwd(c *gin.Context) {
+	var code int
+	name := c.Query("name")
+	password := c.Query("password")
+	user := models.FindUserByName(name)
+	if user.Name == "" {
+		code, _ = strconv.Atoi(utils.Status["userNameWrong"])
+		c.JSON(code, gin.H{
+			"message": "用户不存在",
+		})
+		return
+	}
+	if !utils.ValidPassword(password, user.Salt, user.Password) {
+		code, _ = strconv.Atoi(utils.Status["passwordWrong"])
+		c.JSON(code, gin.H{
+			"message": "密码错误",
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message": user,
+	})
+}
+
 // CreateUser
 // @Summary 添加用户
 // @Tags 用户模块
@@ -41,26 +73,47 @@ func CreateUser(c *gin.Context) {
 	rePassword := c.Query("rePassword")
 	user.Phone = c.Query("phone")
 	user.Email = c.Query("email")
-	isNameExist := models.FindUserByName(user.Name)
-	isPhoneExist := models.FindUserByPhone(user.Phone)
-	isEmailExist := models.FindUserByEmail(user.Email)
-	if isNameExist {
-		c.JSON(-1, gin.H{
+	isNameExist := models.FindUserByName(user.Name).Name == ""
+	isPhoneExist := models.FindUserByPhone(user.Phone).Phone == ""
+	isEmailExist := models.FindUserByEmail(user.Email).Email == ""
+	if !isNameExist {
+		code, _ := strconv.Atoi(utils.Status["namehasexisted"])
+		// fmt.Println("code: ", code)
+		c.JSON(code, gin.H{
 			"message": "用户名已存在",
 		})
-	} else if isPhoneExist {
-		c.JSON(-2, gin.H{
+		return
+	} else if !isPhoneExist {
+		code, err := strconv.Atoi(utils.Status["phonehasexisted"])
+		if err != nil {
+			fmt.Println(err)
+		}
+		// fmt.Println("code: ", code)
+		c.JSON(code, gin.H{
 			"message": "电话号码已注册",
 		})
-	} else if isEmailExist {
-		c.JSON(-3, gin.H{
+		return
+	} else if !isEmailExist {
+		code, _ := strconv.Atoi(utils.Status["emailhasexisted"])
+		c.JSON(code, gin.H{
 			"message": "邮箱已注册",
 		})
+		return
 	} else if user.Password != rePassword {
-		c.JSON(-4, gin.H{
+		code, _ := strconv.Atoi(utils.Status["rePasswordWrong"])
+		c.JSON(code, gin.H{
 			"message": "两次密码不一致",
 		})
+		return
 	} else {
+		_, err := govalidator.ValidateStruct(user)
+		if err != nil {
+			fmt.Println(err)
+			c.JSON(200, gin.H{
+				"message": "修改参数不匹配",
+			})
+			return
+		}
 		user.Salt = fmt.Sprintf("%06d", rand.Int31())
 		user.Password = utils.MakePassword(user.Password, user.Salt)
 		models.CreateUser(user)

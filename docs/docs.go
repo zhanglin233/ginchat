@@ -103,6 +103,36 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/findUserByNameAndPwd": {
+            "get": {
+                "tags": [
+                    "用户模块"
+                ],
+                "summary": "通过用户名和密码判断用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "名字",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "密码",
+                        "name": "password",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "message\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/user/getUserList": {
             "get": {
                 "tags": [

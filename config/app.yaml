@@ -4,3 +4,12 @@ mysql:
   port: 3306
   database: ginchat
   ip: 127.0.0.1
+
+status: 
+  nameHasExisted: -1   # 用户名已存在
+  phoneHasExisted: -2  # 电话号码已注册
+  emailHasExisted: -3  # 邮箱已注册
+  rePasswordWrong: -4  # 两次密码不一样
+  userNameWrong: -5    # 用户不存在
+  passwordWrong: -6    # 密码错误
+
