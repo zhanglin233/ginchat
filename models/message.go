@@ -73,6 +73,7 @@ func Chat(writer http.ResponseWriter, request *http.Request) {
 	//4. userid 跟node 绑定 并加锁
 	rwLocker.RLock()
 	clientMap[userId] = node
+	rwLocker.RUnlock()
 	//5. 完成发送逻辑
 	go sendProc(node)
 	//6. 完成接受逻辑
