@@ -31,10 +31,10 @@ func GetUserList(c *gin.Context) {
 // @Success 200 {string} json{code,"message"}
 // @param name query string false "名字"
 // @param password query string false "密码"
-// @Router /user/findUserByNameAndPwd [get]
+// @Router /user/findUserByNameAndPwd [post]
 func FindUserByNameAndPwd(c *gin.Context) {
-	name := c.Query("name")
-	password := c.Query("password")
+	name := c.PostForm("name")
+	password := c.PostForm("password")
 	user := models.FindUserByName(name)
 	if user.Name == "" {
 		code := utils.Status["usernamewrong"]
@@ -60,17 +60,24 @@ func FindUserByNameAndPwd(c *gin.Context) {
 // @param phone query string false "电话号码"
 // @param email query string false "邮箱"
 // @Success 200 {string} json{code,"message"}
-// @Router /user/createUser [get]
+// @Router /user/createUser [post]
 func CreateUser(c *gin.Context) {
 	user := models.UserBasic{}
-	user.Name = c.Query("name")
-	user.Password = c.Query("password")
-	rePassword := c.Query("rePassword")
-	user.Phone = c.Query("phone")
-	user.Email = c.Query("email")
+	user.Name = c.PostForm("name")
+	user.Password = c.PostForm("password")
+	rePassword := c.PostForm("rePassword")
+	user.Phone = c.PostForm("phone")
+	user.Email = c.PostForm("email")
+	fmt.Println("password,rePassword:", user.Password, rePassword)
 	isNameExist := models.FindUserByName(user.Name).Name == ""
 	isPhoneExist := models.FindUserByPhone(user.Phone).Phone == ""
 	isEmailExist := models.FindUserByEmail(user.Email).Email == ""
+	if user.Name == "" || user.Password == "" {
+		code := utils.Status["paramcannotbenull"]
+		// fmt.Println("code: ", code)
+		c.JSON(200, utils.ReturnJson(code, "用户名或密码不能为空", ""))
+		return
+	}
 	if !isNameExist {
 		code := utils.Status["namehasexisted"]
 		// fmt.Println("code: ", code)

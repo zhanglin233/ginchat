@@ -31,8 +31,23 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/createUser": {
+        "/toRegister": {
             "get": {
+                "tags": [
+                    "注册页"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/createUser": {
+            "post": {
                 "tags": [
                     "用户模块"
                 ],
@@ -104,7 +119,7 @@ const docTemplate = `{
             }
         },
         "/user/findUserByNameAndPwd": {
-            "get": {
+            "post": {
                 "tags": [
                     "用户模块"
                 ],
