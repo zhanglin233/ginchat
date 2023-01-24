@@ -71,9 +71,9 @@ func Chat(writer http.ResponseWriter, request *http.Request) {
 
 	//3. 用户关系
 	//4. userid 跟node 绑定 并加锁
-	rwLocker.RLock()
+	rwLocker.Lock()
 	clientMap[userId] = node
-	rwLocker.RUnlock()
+	rwLocker.Unlock()
 	//5. 完成发送逻辑
 	go sendProc(node)
 	//6. 完成接受逻辑
@@ -85,6 +85,7 @@ func sendProc(node *Node) {
 	for {
 		select {
 		case data := <-node.DataQueue:
+			fmt.Println("[ws]sendProc >>>> msg :", string(data))
 			err := node.Conn.WriteMessage(websocket.TextMessage, data)
 			if err != nil {
 				fmt.Println(err)
@@ -109,6 +110,12 @@ func recvProc(node *Node) {
 var udpSendChan chan []byte = make(chan []byte, 1024)
 
 func broadMsg(data []byte) {
+
+	udpSendChan <- data
+
+}
+
+func init() {
 	go udpSendProc()
 	go udpRecvProc()
 }
@@ -126,6 +133,7 @@ func udpSendProc() {
 	for {
 		select {
 		case data := <-udpSendChan:
+			fmt.Println("udpSendProc  data :", string(data))
 			_, err := con.Write(data)
 			if err != nil {
 				fmt.Println(err)
@@ -152,6 +160,7 @@ func udpRecvProc() {
 			fmt.Println(err)
 			return
 		}
+		fmt.Println("udpRecvProc  data :", string(buf[0:n]))
 		dispatch(buf[0:n])
 	}
 }

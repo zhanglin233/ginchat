@@ -47,7 +47,7 @@ func FindUserByNameAndPwd(c *gin.Context) {
 		return
 	}
 
-	data := models.FindUserByNameAndPwd(name, password)
+	data := models.FindUserByNameAndPwd(name, user.Password)
 	c.JSON(200, utils.ReturnJson("200", "登陆成功", data))
 }
 
@@ -63,11 +63,11 @@ func FindUserByNameAndPwd(c *gin.Context) {
 // @Router /user/createUser [post]
 func CreateUser(c *gin.Context) {
 	user := models.UserBasic{}
-	user.Name = c.PostForm("name")
-	user.Password = c.PostForm("password")
-	rePassword := c.PostForm("rePassword")
-	user.Phone = c.PostForm("phone")
-	user.Email = c.PostForm("email")
+	user.Name = c.Request.FormValue("name")
+	user.Password = c.Request.FormValue("password")
+	rePassword := c.Request.FormValue("rePassword")
+	user.Phone = c.Request.FormValue("phone")
+	user.Email = c.Request.FormValue("email")
 	fmt.Println("password,rePassword:", user.Password, rePassword)
 	isNameExist := models.FindUserByName(user.Name).Name == ""
 	isPhoneExist := models.FindUserByPhone(user.Phone).Phone == ""
@@ -176,21 +176,23 @@ func SendMsg(c *gin.Context) {
 	defer func(ws *websocket.Conn) {
 		err := ws.Close()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("websocket closed:", err)
 		}
 	}(ws)
 	MsgHandler(ws, c)
 }
 func MsgHandler(ws *websocket.Conn, c *gin.Context) {
-	msg, err := utils.Subscribe(c, utils.PublishKey)
-	if err != nil {
-		fmt.Println(err)
-	}
-	tm := time.Now().Format("2006-01-02 15:00:00")
-	m := fmt.Sprintf("[ws][%s]: %s", tm, msg)
-	err = ws.WriteMessage(1, []byte(m))
-	if err != nil {
-		fmt.Println(err)
+	for {
+		msg, err := utils.Subscribe(c, utils.PublishKey)
+		if err != nil {
+			fmt.Println(err)
+		}
+		tm := time.Now().Format("2006-01-02 15:00:00")
+		m := fmt.Sprintf("[ws][%s]: %s", tm, msg)
+		err = ws.WriteMessage(1, []byte(m))
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }
 
