@@ -457,7 +457,7 @@
 
                 },
                 initwebsocket: function () {
-                    var url = "ws://" + location.host + "/chat?userId=" + userId() + "&token=" + util.parseQuery("token");
+                    var url = "ws://" + location.host + "/user/sendUserMsg?userId=" + userId() + "&token=" + util.parseQuery("token");
                     this.webSocket = new WebSocket(url);
                     //消息处理
                     this.webSocket.onmessage = function (evt) {
@@ -486,7 +486,7 @@
                 },
                 loadfriends: function () {
                     var that = this;
-                    post("searchFriends", { userId: userId() }, function (res) {
+                    post("user/searchFriends", { userId: userId() }, function (res) {
                         that.friends = res.Rows || [];
                         var usermap = this.usermap;
                         for (var i in res.Rows) {

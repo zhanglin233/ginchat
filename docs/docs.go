@@ -31,6 +31,21 @@ const docTemplate = `{
                 }
             }
         },
+        "/toChat": {
+            "get": {
+                "tags": [
+                    "聊天页"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/toRegister": {
             "get": {
                 "tags": [
@@ -154,6 +169,30 @@ const docTemplate = `{
                     "用户模块"
                 ],
                 "summary": "所有用户",
+                "responses": {
+                    "200": {
+                        "description": "message\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/searchFriends": {
+            "post": {
+                "tags": [
+                    "用户模块"
+                ],
+                "summary": "查询好友",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户id",
+                        "name": "userId",
+                        "in": "formData"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "message\"}",

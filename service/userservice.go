@@ -33,8 +33,8 @@ func GetUserList(c *gin.Context) {
 // @param password query string false "密码"
 // @Router /user/findUserByNameAndPwd [post]
 func FindUserByNameAndPwd(c *gin.Context) {
-	name := c.PostForm("name")
-	password := c.PostForm("password")
+	name := c.Request.FormValue("name")
+	password := c.Request.FormValue("password")
 	user := models.FindUserByName(name)
 	if user.Name == "" {
 		code := utils.Status["usernamewrong"]
@@ -196,4 +196,16 @@ func MsgHandler(ws *websocket.Conn, c *gin.Context) {
 
 func SendUserMsg(c *gin.Context) {
 	models.Chat(c.Writer, c.Request)
+}
+
+// SearchFriends
+// @Summary 查询好友
+// @Tags 用户模块
+// @param userId formData string false "用户id"
+// @Success 200 {string} json{code,"message"}
+// @Router /user/searchFriends [post]
+func SearchFriends(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Request.FormValue("userId"))
+	users := models.SearchFriend(uint(id))
+	utils.RespOKList(c.Writer, users, len(users))
 }
