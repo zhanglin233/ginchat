@@ -103,7 +103,7 @@ func recvProc(node *Node) {
 			return
 		}
 		broadMsg(data)
-		fmt.Println("[ws] <<< ", data)
+		fmt.Println("[ws] recvProc <<< ", string(data))
 	}
 }
 
@@ -118,12 +118,13 @@ func broadMsg(data []byte) {
 func init() {
 	go udpSendProc()
 	go udpRecvProc()
+	fmt.Println("init goroutine")
 }
 
 // 完成udp数据发送协程
 func udpSendProc() {
 	con, err := net.DialUDP("udp", nil, &net.UDPAddr{
-		IP:   net.IPv4(192, 138, 1, 255),
+		IP:   net.IPv4(127, 0, 0, 1),
 		Port: 3000,
 	})
 	defer con.Close()
@@ -146,7 +147,7 @@ func udpSendProc() {
 // 完成udp数据接收协程
 func udpRecvProc() {
 	con, err := net.ListenUDP("udp", &net.UDPAddr{
-		IP:   net.IPv4zero,
+		IP:   net.IPv4(127, 0, 0, 1),
 		Port: 3000,
 	})
 	if err != nil {
@@ -167,14 +168,17 @@ func udpRecvProc() {
 
 // 后端调度逻辑处理
 func dispatch(data []byte) {
+	fmt.Println("dispatch")
 	msg := Message{}
 	err := json.Unmarshal(data, &msg)
 	if err != nil {
 		fmt.Println(err)
 	}
+	fmt.Println("msg : ", msg, msg.userId)
+
 	switch msg.Type {
 	case 1: //私信
-		sendMSg(msg.FormId, data)
+		sendMSg(msg.TargetId, data)
 		// case 2:  //群发
 		// sendGroupMSg()
 		// case 3:  //广播

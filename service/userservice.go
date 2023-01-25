@@ -196,10 +196,6 @@ func MsgHandler(ws *websocket.Conn, c *gin.Context) {
 	}
 }
 
-func SendUserMsg(c *gin.Context) {
-	models.Chat(c.Writer, c.Request)
-}
-
 // SearchFriends
 // @Summary 查询好友
 // @Tags 用户模块

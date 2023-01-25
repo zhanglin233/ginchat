@@ -319,8 +319,8 @@
                         if (msg.Type == 1) {
                             this.showmsg(userInfo(), msg);
                         }
-
-                        this.webSocket.send(JSON.stringify(msg))
+                        console.log(this.webSocket);
+                        console.log(this.webSocket.send(JSON.stringify(msg)));
                     }
                 },
                 sendpicmsg: function (picurl) {
@@ -457,7 +457,7 @@
 
                 },
                 initwebsocket: function () {
-                    var url = "ws://" + location.host + "/user/sendUserMsg?userId=" + userId() + "&token=" + util.parseQuery("token");
+                    var url = "ws://" + location.host + "/chat?userId=" + userId() + "&token=" + util.parseQuery("token");
                     this.webSocket = new WebSocket(url);
                     //消息处理
                     this.webSocket.onmessage = function (evt) {

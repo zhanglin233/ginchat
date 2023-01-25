@@ -26,6 +26,7 @@ func Router() *gin.Engine {
 	r.GET("/index", service.GetIndex)
 	r.GET("/toRegister", service.ToRegister)
 	r.GET("/toChat", service.ToChat)
+	r.GET("/chat", service.Chat)
 
 	//用户信息
 	r.GET("/user/getUserList", service.GetUserList)
@@ -36,6 +37,5 @@ func Router() *gin.Engine {
 	r.POST("/user/searchFriends", service.SearchFriends)
 	//发送消息
 	r.GET("/user/sendMsg", service.SendMsg)
-	r.GET("/user/sendUserMsg", service.SendUserMsg)
 	return r
 }
