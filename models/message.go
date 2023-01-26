@@ -174,7 +174,6 @@ func dispatch(data []byte) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("msg : ", msg, msg.userId)
 
 	switch msg.Type {
 	case 1: //私信
